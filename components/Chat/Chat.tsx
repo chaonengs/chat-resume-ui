@@ -9,7 +9,9 @@ import {
   useState,
 } from 'react';
 import toast from 'react-hot-toast';
-import pdfjsLib from 'pdfjs-dist';
+import * as pdfjsLib from 'pdfjs-dist';
+import * as pdfjs from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 
 import { useTranslation } from 'next-i18next';
 
@@ -40,44 +42,39 @@ interface Props {
   stopConversationRef: MutableRefObject<boolean>;
 }
 
-const pdfToText = async (file) => {
+const pdfToText = (file) => {
+
+  pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
   const reader = new FileReader();
-  reader.readAsArrayBuffer(file);
-  reader.onload = async () => {
-    // Load the PDF data from the file blob
-    const arrayBuffer = reader.result;
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer });
-    
-    let text = '';
-    // Loop through all pages
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      // Get the text content
-      const textContent = await page.getTextContent();
-      for (let j = 0; j < textContent.items.length; j++) {
-        text += textContent.items[j].str + ' ';
+  let text = '';
+
+  return new Promise(function (resolve, reject) {
+    reader.onloadend = async () => {
+      // Load the PDF data from the file blob
+      const arrayBuffer = reader.result;
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
+      
+      // Loop through all pages
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        // Get the text content
+        const textContent = await page.getTextContent();
+        for (let j = 0; j < textContent.items.length; j++) {
+          text += textContent.items[j].str + ' ';
+        }
       }
+      text = text.replace(/\s+/g, " ");
+      resolve(text.trim());
     }
-    // Return the concatenated text content
-    return text.trim(); // trim() removes any extra space at the end
-  }
+    reader.readAsArrayBuffer(file);
+  
+  });
 }
 
 export const Chat = memo(({ stopConversationRef }: Props) => {
   const { t } = useTranslation('chat');
-  const onDrop = useCallback(acceptedFiles => {
-      const url = URL.createObjectURL(acceptedFiles[0]);
-      const text = pdfToText(acceptedFiles[0]);
-      console.log(text);
-  }, []);
-  const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
-  const files = acceptedFiles.map(file => (
-    <li key={file.path}>
-      {file.path} - {file.size} bytes
-    </li>
-  ));
-
+  
   const {
     state: {
       selectedConversation,
@@ -95,6 +92,8 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     dispatch: homeDispatch,
   } = useContext(HomeContext);
 
+  const [resumeFileName, setResumeFileName] = useState<string|null>(null);
+  const [resumeFileText, setResumeFileText] = useState<string|null>(null);
   const [currentMessage, setCurrentMessage] = useState<Message>();
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
   const [showSettings, setShowSettings] = useState<boolean>(false);
@@ -104,6 +103,24 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const onDrop = useCallback(async (acceptedFiles) => {
+    const url = URL.createObjectURL(acceptedFiles[0]);
+    const text = await pdfToText(acceptedFiles[0]);
+    setResumeFileName(acceptedFiles[0].name);
+    setResumeFileText(text);
+    handleUpdateConversation(selectedConversation, {
+      key: 'resumeFileName',
+      value: resumeFileName,
+    })
+    handleUpdateConversation(selectedConversation, {
+      key: 'resumeFileText',
+      value: resumeFileText,
+    })
+    }, []);
+    const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
+
+
 
   const handleSend = useCallback(
     async (message: Message, deleteCount = 0, plugin: Plugin | null = null) => {
@@ -473,10 +490,13 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                     </div>
                   )}
 
-<div {...getRootProps({className: 'dropzone flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600'})}>
-        <input {...getInputProps()} />
-        <p>Drag 'n' drop some files here, or click to select files</p>
-      </div>
+                  {!resumeFileName && (<div {...getRootProps({className: 'dropzone flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600'})}>
+                    <input {...getInputProps()} />
+                    <p>Drag 'n' drop your resume pdf, or click to select files</p>
+                  </div>)}
+                  {resumeFileName && (<div className="flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600">
+                    <p>You are chatting with {resumeFileName}</p>
+                  </div>)}
                 </div>
                 
               </>
