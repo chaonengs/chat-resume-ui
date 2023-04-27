@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import toast from 'react-hot-toast';
+import pdfjsLib from 'pdfjs-dist';
 
 import { useTranslation } from 'next-i18next';
 
@@ -22,6 +23,7 @@ import { throttle } from '@/utils/data/throttle';
 
 import { ChatBody, Conversation, Message } from '@/types/chat';
 import { Plugin } from '@/types/plugin';
+import {useDropzone} from 'react-dropzone';
 
 import HomeContext from '@/pages/api/home/home.context';
 
@@ -38,8 +40,43 @@ interface Props {
   stopConversationRef: MutableRefObject<boolean>;
 }
 
+const pdfToText = async (file) => {
+
+  const reader = new FileReader();
+  reader.readAsArrayBuffer(file);
+  reader.onload = async () => {
+    // Load the PDF data from the file blob
+    const arrayBuffer = reader.result;
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer });
+    
+    let text = '';
+    // Loop through all pages
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      // Get the text content
+      const textContent = await page.getTextContent();
+      for (let j = 0; j < textContent.items.length; j++) {
+        text += textContent.items[j].str + ' ';
+      }
+    }
+    // Return the concatenated text content
+    return text.trim(); // trim() removes any extra space at the end
+  }
+}
+
 export const Chat = memo(({ stopConversationRef }: Props) => {
   const { t } = useTranslation('chat');
+  const onDrop = useCallback(acceptedFiles => {
+      const url = URL.createObjectURL(acceptedFiles[0]);
+      const text = pdfToText(acceptedFiles[0]);
+      console.log(text);
+  }, []);
+  const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
+  const files = acceptedFiles.map(file => (
+    <li key={file.path}>
+      {file.path} - {file.size} bytes
+    </li>
+  ));
 
   const {
     state: {
@@ -435,7 +472,13 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                       />
                     </div>
                   )}
+
+<div {...getRootProps({className: 'dropzone flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600'})}>
+        <input {...getInputProps()} />
+        <p>Drag 'n' drop some files here, or click to select files</p>
+      </div>
                 </div>
+                
               </>
             ) : (
               <>
