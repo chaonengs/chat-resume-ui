@@ -9,10 +9,9 @@ import {
   useState,
 } from 'react';
 import toast from 'react-hot-toast';
-import * as pdfjsLib from 'pdfjs-dist';
 import * as pdfjs from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-
+import { firstLine, generateResumeZh, generateResume} from '@/prompts/built-in';
 import { useTranslation } from 'next-i18next';
 
 import { getEndpoint } from '@/utils/app/api';
@@ -111,12 +110,19 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     setResumeFileText(text);
     handleUpdateConversation(selectedConversation, {
       key: 'resumeFileName',
-      value: resumeFileName,
+      value: acceptedFiles[0].name,
     })
     handleUpdateConversation(selectedConversation, {
       key: 'resumeFileText',
-      value: resumeFileText,
+      value: text,
     })
+      const message: Message = {
+        role: 'user',
+        content: generateResume(String(text))
+      }
+      setCurrentMessage(message);
+      handleSend(message, 0, null);
+    
     }, []);
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
 
@@ -490,12 +496,12 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                     </div>
                   )}
 
-                  {!resumeFileName && (<div {...getRootProps({className: 'dropzone flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600'})}>
+                  {!selectedConversation.resumeFileName && (<div {...getRootProps({className: 'dropzone flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600'})}>
                     <input {...getInputProps()} />
                     <p>Drag 'n' drop your resume pdf, or click to select files</p>
                   </div>)}
-                  {resumeFileName && (<div className="flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600">
-                    <p>You are chatting with {resumeFileName}</p>
+                  {selectedConversation.resumeFileName && (<div className="flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600">
+                    <p>You are chatting with {selectedConversation.resumeFileName}</p>
                   </div>)}
                 </div>
                 

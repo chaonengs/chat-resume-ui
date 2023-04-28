@@ -1,0 +1,5 @@
+
+export const firstLine: string = "You are a Human Resources Manager, I am providing you someone's resume, and I will ask you some questions about this resume. Please answer the questions based on the resume. Please answer my following questions in the langauge that I used. Are you ready? Here is the resume: ";
+export const generateResumeZh: string = "请问您能否根据这份简历，生成一份中文简历？";
+export const generateResume = (resumeContext:string) => {
+  return `You are a Human Resources Manager, I am providing you someone's resume, please regenrate the resume in markdown and use the same language that the oringinal resume used.  this new resume should have the following sections: name, email, mobile, github link, linkedin link, summary, work experience, project experience,  education, skills, awards, and publications. Here is the resume: ${resumeContext} `; }
