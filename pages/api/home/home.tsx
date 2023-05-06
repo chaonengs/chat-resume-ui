@@ -40,6 +40,7 @@ import HomeContext from './home.context';
 import { HomeInitialState, initialState } from './home.state';
 
 import { v4 as uuidv4 } from 'uuid';
+import {folders as defaultFolders, prompts as defaultPrompts} from '@/built-in.prompts';
 
 interface Props {
   serverSideApiKeyIsSet: boolean;
@@ -295,11 +296,19 @@ const Home = ({
     const folders = localStorage.getItem('folders');
     if (folders) {
       dispatch({ field: 'folders', value: JSON.parse(folders) });
+    } else {
+      dispatch({ field: 'folders', value: defaultFolders });
     }
 
     const prompts = localStorage.getItem('prompts');
     if (prompts) {
       dispatch({ field: 'prompts', value: JSON.parse(prompts) });
+    } else {
+      dispatch({ field: 'prompts', value:  defaultPrompts});
+    }
+
+    const defaultSystemPrompt = () => {
+      return contextValue.state.prompts?.filter((p)=>p.name === 'defualt')
     }
 
     const conversationHistory = localStorage.getItem('conversationHistory');

@@ -116,12 +116,17 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       key: 'resumeFileText',
       value: text,
     })
-      const message: Message = {
-        role: 'user',
-        content: generateResume(String(text))
-      }
-      setCurrentMessage(message);
-      handleSend(message, 0, null);
+    handleUpdateConversation(selectedConversation, {
+      key: 'prompt',
+      value: prompts.findLast(p=>p.name==='defualt')?.content + ' ' + text,
+    })
+      // const message: Message = {
+      //   role: 'user',
+      //   // content: generateResume(String(text))
+      //   content: String(text)
+      // }
+      // setCurrentMessage(message);
+      // handleSend(message, 0, null);
     
     }, []);
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
