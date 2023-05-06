@@ -1,4 +1,5 @@
 npm install
+yum install wget
 wget https://github.com/madler/zlib/archive/v1.2.11.tar.gz
 tar -zxvf v1.2.11.tar.gz
 cd zlib-1.2.11
