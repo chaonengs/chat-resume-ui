@@ -33,7 +33,7 @@ const prompts: Prompt[] = [
     id: uuidv4(),
     name: '中文简历处理',
     description: '默认的中文简历处理器',
-    content: '请用Markdown格式重新生成一份求职简历，使用中文，简历应该包含以下段落：姓名，电话，邮箱，个人简介，',
+    content: '生成一份新的求职简历，要求新生成的简历包含求职者姓名，电话，邮箱，个人简介，教育经历，工作经验，项目经验和技能。在工作经验和项目经验中，请用bullet list的形式，列出重点。用markdown格式输出，使用中文',
     model: OpenAIModels[OpenAIModelID.GPT_3_5],
     folderId: resumeFolderId,
   },

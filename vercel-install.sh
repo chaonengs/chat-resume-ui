@@ -12,3 +12,4 @@ cd ../
 cp /lib64/{libuuid,libmount,libblkid,libz}.so.1 node_modules/canvas/build/Release/ 
 cp /bin/zlib//lib/libz.so.1.2.9 node_modules/canvas/build/Release/libz.so.1
 ln -s -f /usr/local/lib/libz.so.1.2.9/lib /lib64/libz.so.1
+rm node_modules/canvas/build/Release/librsvg-2.so.2
