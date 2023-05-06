@@ -1,6 +1,8 @@
 # npm install
 # yum install wget
-yum install libuuid-devel libmount-devel zlib
+# yum install gcc-c++ cairo-devel pango-devel libjpeg-turbo-devel giflib-devel
+# npm install canvas@2.6.1 --build-from-source
+# yum install libuuid-devel libmount-devel zlib
 # wget https://github.com/madler/zlib/archive/v1.2.9.tar.gz
 # tar -zxvf v1.2.9.tar.gz
 # cd zlib-1.2.9
