@@ -25,7 +25,7 @@ const prompts: Prompt[] = [
     id: uuidv4(),
     name: 'defualt',
     description: '',
-    content: 'You are a resume parser, I will provider you a resume, answer my questions based on the resume context, do not make up any content, here is the resume: ',
+    content: 'You are a resume parser, I will provider you a resume, and you will generate a new resume for me. The new resume should include name, mobile, email, summary, work expierence, education background, project expierence and skills. In work expierence and project expierence and skills. use bullet list to list the key points in work expierence and project expierence sections. Output in markdown format, use the same language as it in the orignal resume.', 
     model: OpenAIModels[OpenAIModelID.GPT_3_5],
     folderId: systemFolderId,
   },

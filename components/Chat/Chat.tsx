@@ -41,7 +41,9 @@ interface Props {
   stopConversationRef: MutableRefObject<boolean>;
 }
 
-const pdfToText = (file) => {
+/* eslint-disable */
+// @ts-ignore
+const pdfToText = (file) => {  
 
   pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -52,6 +54,7 @@ const pdfToText = (file) => {
     reader.onloadend = async () => {
       // Load the PDF data from the file blob
       const arrayBuffer = reader.result;
+      // @ts-ignore
       const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
       
       // Loop through all pages
@@ -60,6 +63,7 @@ const pdfToText = (file) => {
         // Get the text content
         const textContent = await page.getTextContent();
         for (let j = 0; j < textContent.items.length; j++) {
+          // @ts-ignore
           text += textContent.items[j].str + ' ';
         }
       }
@@ -67,9 +71,10 @@ const pdfToText = (file) => {
       resolve(text.trim());
     }
     reader.readAsArrayBuffer(file);
-  
   });
 }
+/* eslint-enable */
+
 
 export const Chat = memo(({ stopConversationRef }: Props) => {
   const { t } = useTranslation('chat');
@@ -103,7 +108,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const onDrop = useCallback(async (acceptedFiles) => {
+  const onDrop = useCallback(async (acceptedFiles: { name: any; }[]) => {
     const url = URL.createObjectURL(acceptedFiles[0]);
     const text = await pdfToText(acceptedFiles[0]);
     setResumeFileName(acceptedFiles[0].name);
@@ -118,16 +123,15 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     })
     handleUpdateConversation(selectedConversation, {
       key: 'prompt',
-      value: prompts.findLast(p=>p.name==='defualt')?.content + ' ' + text,
+      value: prompts.findLast(p=>p.name==='defualt')?.content
     })
-      // const message: Message = {
-      //   role: 'user',
-      //   // content: generateResume(String(text))
-      //   content: String(text)
-      // }
-      // setCurrentMessage(message);
-      // handleSend(message, 0, null);
-    
+
+    const message: Message = {
+      role: 'user',
+      content: String(text)
+    }
+    setCurrentMessage(message);
+    handleSend(message, 0, null);
     }, []);
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
 
@@ -160,6 +164,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
         homeDispatch({ field: 'messageIsStreaming', value: true });
         const chatBody: ChatBody = {
           model: updatedConversation.model,
+          // @ts-ignore
           messages: updatedConversation.messages,
           key: apiKey,
           prompt: updatedConversation.prompt,
@@ -503,7 +508,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
 
                   {!selectedConversation.resumeFileName && (<div {...getRootProps({className: 'dropzone flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600'})}>
                     <input {...getInputProps()} />
-                    <p>Drag 'n' drop your resume pdf, or click to select files</p>
+                    <p>Drag and drop your resume pdf, or click to select files</p>
                   </div>)}
                   {selectedConversation.resumeFileName && (<div className="flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600">
                     <p>You are chatting with {selectedConversation.resumeFileName}</p>
