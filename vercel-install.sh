@@ -1,6 +1,6 @@
 # npm install
 # yum install wget
-# yum install libuuid-devel libmount-devel zlib
+yum install libuuid-devel libmount-devel zlib
 # wget https://github.com/madler/zlib/archive/v1.2.9.tar.gz
 # tar -zxvf v1.2.9.tar.gz
 # cd zlib-1.2.9
