@@ -10,3 +10,5 @@ make install
 export LD_LIBRARY_PATH="/bin/zlib/lib":$LD_LIBRARY_PATH
 cd ../
 cp /lib64/{libuuid,libmount,libblkid,libz}.so.1 node_modules/canvas/build/Release/
+cd /lib/x86_64-linux-gnu
+ln -s -f /usr/local/lib/libz.so.1.2.9/lib libz.so.1
