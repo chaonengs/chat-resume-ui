@@ -23,9 +23,9 @@ const resumeFolder: FolderInterface = {
 const prompts: Prompt[] = [
   {
     id: uuidv4(),
-    name: 'defualt',
+    name: 'default',
     description: '',
-    content: 'You are a resume parser, I will provider you a resume, and you will generate a new resume for me. The new resume should include name, mobile, email, summary, work expierence, education background, project expierence and skills. In work expierence and project expierence and skills. use bullet list to list the key points in work expierence and project expierence sections. Output in markdown format, use the same language as it in the orignal resume.', 
+    content: 'You are a resume parser, I am providering you a resume, and you format this resume for me. You should output in markdown, use the same language as the resume used. The content should include name, mobile, email, summary, work expierence, education background, project expierence and skills. In work expierence and project expierence and skills. use bullet list to list the key points in work expierence and project expierence sections. All generated context must based on the resume I provided.', 
     model: OpenAIModels[OpenAIModelID.GPT_3_5],
     folderId: systemFolderId,
   },
@@ -40,7 +40,7 @@ const prompts: Prompt[] = [
   {
     id: uuidv4(),
     name: 'EnglishResumeParser',
-    description: 'The defualt English resume parser',
+    description: 'The default English resume parser',
     content: 'Re-generate a resume and output in markdown, the new resume should include name, mobile, email, summary, work expierence, education background, ',
     model: OpenAIModels[OpenAIModelID.GPT_3_5],
     folderId: resumeFolderId,
