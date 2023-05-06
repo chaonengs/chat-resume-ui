@@ -8,5 +8,6 @@ cd zlib-1.2.11
 make
 make install
 export LD_LIBRARY_PATH="/bin/zlib/lib":$LD_LIBRARY_PATH
-ls node_modules
+ls 
+npm install --inlude-dev
 cp /lib64/{libuuid,libmount,libblkid,libz}.so.1 node_modules/canvas/build/Release/
