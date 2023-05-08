@@ -145,6 +145,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       pluginKeys,
       selectedConversation,
       stopConversationRef,
+      prompts,
     ],);
 
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
