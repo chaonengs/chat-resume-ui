@@ -335,6 +335,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       pluginKeys,
       selectedConversation,
       stopConversationRef,
+      prompts,
     ],
   );
 
