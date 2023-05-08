@@ -50,6 +50,56 @@ const pdfToText = (file) => {
   const reader = new FileReader();
   let text = '';
 
+  const cleanText = (str: string) => {
+    str = str.replace("（", "(");
+    str = str.replace("）", ")");
+    str = str.replace("，", ",");
+    str = str.replace("。", ".");
+    str = str.replace("、", ",");
+    str = str.replace("～", "~");
+    str = str.replace("：", ":");
+    str = str.replace("《", "<");
+    str = str.replace("》", ">");
+    str = str.replace("？", "?");
+    str = str.replace("‘", "'");
+    str = str.replace("’", "'");
+    str = str.replace("“", '"');
+    str = str.replace("”", '"');
+    str = str.replace("；", ';');
+    str = str.replace("【", '[');
+    str = str.replace("】", ']');
+    str = str.replace(/\s+/g, " ");
+    let regex = /([^\u4E00-\u9FFFa-zA-Z0-9])\s/g;
+    const subst = `$1`;
+    str = str.replace(regex, subst);
+    regex = /\s([^\u4E00-\u9FFFa-zA-Z0-9])/g;
+    str = str.replace(regex, subst);
+    regex = /[\u4E00-\u9FFF]/g;
+    if(str.match(regex)){
+      regex = /([A-Za-z])\s/g;
+      str = str.replace(regex, subst);
+      regex = /\s([A-Za-z])/g;
+      str = str.replace(regex, subst);
+    }
+
+    return str;
+  }
+
+  const toCDB = (str: String) => { 
+    var tmp = ""; 
+    for(var i = 0; i < str.length; i++) { 
+        if (str.charCodeAt(i) == 12288) {
+           tmp += String.fromCharCode(str.charCodeAt(i)-12256);
+           continue;
+        } else if(str.charCodeAt(i) > 65280 && str.charCodeAt(i) < 65375) { 
+           tmp += String.fromCharCode(str.charCodeAt(i)-65248); 
+        } else { 
+           tmp += String.fromCharCode(str.charCodeAt(i)); 
+        } 
+    } 
+    return tmp; 
+}
+
   return new Promise(function (resolve, reject) {
     reader.onloadend = async () => {
       // Load the PDF data from the file blob
@@ -67,7 +117,7 @@ const pdfToText = (file) => {
           text += textContent.items[j].str + ' ';
         }
       }
-      text = text.replace(/\s+/g, " ");
+      text = cleanText(text);
       resolve(text.trim());
     }
     reader.readAsArrayBuffer(file);
