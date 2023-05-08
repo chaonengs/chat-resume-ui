@@ -112,7 +112,8 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     const url = URL.createObjectURL(acceptedFiles[0]);
     const text = await pdfToText(acceptedFiles[0]);
     setResumeFileName(acceptedFiles[0].name);
-    setResumeFileText(text);
+    setResumeFileText(text)
+
     handleUpdateConversation(selectedConversation, {
       key: 'resumeFileName',
       value: acceptedFiles[0].name,
@@ -121,18 +122,31 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       key: 'resumeFileText',
       value: text,
     })
-    handleUpdateConversation(selectedConversation, {
-      key: 'prompt',
-      value: prompts.findLast(p=>p.name==='defualt')?.content
-    })
+
+    const p = prompts.findLast(p=>p.name==='default');
+    if(p){
+      handleUpdateConversation(selectedConversation, {
+        key: 'prompt',
+        value: prompts.findLast(p=>p.name==='default')?.content
+      })
+    }
+
 
     const message: Message = {
       role: 'user',
       content: String(text)
     }
+    
     setCurrentMessage(message);
     handleSend(message, 0, null);
-    }, []);
+    }, [
+      apiKey,
+      conversations,
+      pluginKeys,
+      selectedConversation,
+      stopConversationRef,
+    ],);
+
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
 
 
@@ -164,7 +178,6 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
         homeDispatch({ field: 'messageIsStreaming', value: true });
         const chatBody: ChatBody = {
           model: updatedConversation.model,
-          // @ts-ignore
           messages: updatedConversation.messages,
           key: apiKey,
           prompt: updatedConversation.prompt,
