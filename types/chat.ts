@@ -15,6 +15,12 @@ export interface ChatBody {
   temperature: number;
 }
 
+export interface VectorIndexBody {
+  context: string;
+  vector: string | null;
+  query: string;
+}
+
 export interface Conversation {
   id: string;
   name: string;

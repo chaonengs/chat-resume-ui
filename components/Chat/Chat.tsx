@@ -36,6 +36,8 @@ import { ModelSelect } from './ModelSelect';
 import { SystemPrompt } from './SystemPrompt';
 import { TemperatureSlider } from './Temperature';
 import { MemoizedChatMessage } from './MemoizedChatMessage';
+import { DEFAULT_SYSTEM_PROMPT } from '@/utils/app/const';
+
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>;
@@ -51,23 +53,23 @@ const pdfToText = (file) => {
   let text = '';
 
   const cleanText = (str: string) => {
-    str = str.replace("（", "(");
-    str = str.replace("）", ")");
-    str = str.replace("，", ",");
-    str = str.replace("。", ".");
-    str = str.replace("、", ",");
-    str = str.replace("～", "~");
-    str = str.replace("：", ":");
-    str = str.replace("《", "<");
-    str = str.replace("》", ">");
-    str = str.replace("？", "?");
-    str = str.replace("‘", "'");
-    str = str.replace("’", "'");
-    str = str.replace("“", '"');
-    str = str.replace("”", '"');
-    str = str.replace("；", ';');
-    str = str.replace("【", '[');
-    str = str.replace("】", ']');
+    str = str.replaceAll("（", "(");
+    str = str.replaceAll("）", ")");
+    str = str.replaceAll("，", ",");
+    str = str.replaceAll("。", ".");
+    str = str.replaceAll("、", ",");
+    str = str.replaceAll("～", "~");
+    str = str.replaceAll("：", ":");
+    str = str.replaceAll("《", "<");
+    str = str.replaceAll("》", ">");
+    str = str.replaceAll("？", "?");
+    str = str.replaceAll("‘", "'");
+    str = str.replaceAll("’", "'");
+    str = str.replaceAll("“", '"');
+    str = str.replaceAll("”", '"');
+    str = str.replaceAll("；", ';');
+    str = str.replaceAll("【", '[');
+    str = str.replaceAll("】", ']');
     str = str.replace(/\s+/g, " ");
     let regex = /([^\u4E00-\u9FFFa-zA-Z0-9])\s/g;
     const subst = `$1`;
@@ -76,9 +78,9 @@ const pdfToText = (file) => {
     str = str.replace(regex, subst);
     regex = /[\u4E00-\u9FFF]/g;
     if(str.match(regex)){
-      regex = /([A-Za-z])\s/g;
+      regex = /([A-Za-z0-9])\s/g;
       str = str.replace(regex, subst);
-      regex = /\s([A-Za-z])/g;
+      regex = /\s([A-Za-z0-9])/g;
       str = str.replace(regex, subst);
     }
 
@@ -142,6 +144,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       loading,
       prompts,
     },
+    getDefaultSystemPrompt,
     handleUpdateConversation,
     dispatch: homeDispatch,
   } = useContext(HomeContext);
@@ -157,50 +160,6 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const onDrop = useCallback(async (acceptedFiles: { name: any; }[]) => {
-    const url = URL.createObjectURL(acceptedFiles[0]);
-    const text = await pdfToText(acceptedFiles[0]);
-    setResumeFileName(acceptedFiles[0].name);
-    setResumeFileText(text)
-
-    handleUpdateConversation(selectedConversation, {
-      key: 'resumeFileName',
-      value: acceptedFiles[0].name,
-    })
-    handleUpdateConversation(selectedConversation, {
-      key: 'resumeFileText',
-      value: text,
-    })
-
-    const p = prompts.findLast(p=>p.name==='default');
-    if(p){
-      handleUpdateConversation(selectedConversation, {
-        key: 'prompt',
-        value: prompts.findLast(p=>p.name==='default')?.content
-      })
-    }
-
-
-    const message: Message = {
-      role: 'user',
-      content: String(text)
-    }
-    
-    setCurrentMessage(message);
-    handleSend(message, 0, null);
-    }, [
-      apiKey,
-      conversations,
-      pluginKeys,
-      selectedConversation,
-      stopConversationRef,
-      prompts,
-    ],);
-
-    const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
-
-
 
   const handleSend = useCallback(
     async (message: Message, deleteCount = 0, plugin: Plugin | null = null) => {
@@ -388,6 +347,46 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       prompts,
     ],
   );
+
+
+  const onDrop = useCallback(async (acceptedFiles: { name: any; }[]) => {
+    const url = URL.createObjectURL(acceptedFiles[0]);
+    const text = await pdfToText(acceptedFiles[0]);
+    setResumeFileName(acceptedFiles[0].name);
+    setResumeFileText(text);
+
+    handleUpdateConversation(selectedConversation, {
+      key: 'resumeFileName',
+      value: acceptedFiles[0].name,
+    });
+    handleUpdateConversation(selectedConversation, {
+      key: 'resumeFileText',
+      value: text,
+    });
+    handleUpdateConversation(selectedConversation, {
+        key: 'prompt',
+        value: DEFAULT_SYSTEM_PROMPT
+    });
+    const message: Message = {
+      role: 'user',
+      content: String(text)
+    };
+    setCurrentMessage(message);
+    handleSend(message, 0, null);
+    }, [
+      apiKey,
+      conversations,
+      pluginKeys,
+      selectedConversation,
+      stopConversationRef,
+      prompts,
+      handleSend,
+      handleUpdateConversation,
+      getDefaultSystemPrompt
+    ],
+  );
+
+  const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
 
   const scrollToBottom = useCallback(() => {
     if (autoScrollEnabled) {

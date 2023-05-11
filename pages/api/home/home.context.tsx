@@ -20,6 +20,8 @@ export interface HomeContextProps {
     conversation: Conversation,
     data: KeyValuePair,
   ) => void;
+  getDefaultSystemPrompt: () => string;
+
 }
 
 const HomeContext = createContext<HomeContextProps>(undefined!);

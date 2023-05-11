@@ -100,6 +100,23 @@ const Home = ({
     dispatch({ field: 'modelError', value: getModelsError(error) });
   }, [dispatch, error, getModelsError]);
 
+  const getDefaultSystemPrompt = ():string => {
+    let prompts: Prompt[] = [];
+    let promptsString = localStorage.getItem('prompts');
+    if (promptsString) {
+      prompts = JSON.parse(promptsString)
+    }
+    let prompt = prompts?.findLast((p)=>p.name === 'default')
+    if (prompt) {
+      return prompt.content
+    }
+    prompt = defaultPrompts?.findLast((p)=>p.name === 'default')
+    if (prompt) {
+      return prompt.content
+    }
+    return DEFAULT_SYSTEM_PROMPT;
+  }
+
   // FETCH MODELS ----------------------------------------------
 
   const handleSelectConversation = (conversation: Conversation) => {
@@ -192,7 +209,7 @@ const Home = ({
         maxLength: OpenAIModels[defaultModelId].maxLength,
         tokenLimit: OpenAIModels[defaultModelId].tokenLimit,
       },
-      prompt: DEFAULT_SYSTEM_PROMPT,
+      prompt: getDefaultSystemPrompt(),
       temperature: lastConversation?.temperature ?? DEFAULT_TEMPERATURE,
       folderId: null,
     };
@@ -307,10 +324,6 @@ const Home = ({
       dispatch({ field: 'prompts', value:  defaultPrompts});
     }
 
-    const defaultSystemPrompt = () => {
-      return contextValue.state.prompts?.filter((p)=>p.name === 'defualt')
-    }
-
     const conversationHistory = localStorage.getItem('conversationHistory');
     if (conversationHistory) {
       const parsedConversationHistory: Conversation[] =
@@ -343,7 +356,7 @@ const Home = ({
           name: t('New Conversation'),
           messages: [],
           model: OpenAIModels[defaultModelId],
-          prompt: DEFAULT_SYSTEM_PROMPT,
+          prompt: getDefaultSystemPrompt(),
           temperature: lastConversation?.temperature ?? DEFAULT_TEMPERATURE,
           folderId: null,
         },
@@ -356,6 +369,8 @@ const Home = ({
     serverSidePluginKeysSet,
   ]);
 
+ 
+
   return (
     <HomeContext.Provider
       value={{
@@ -366,6 +381,7 @@ const Home = ({
         handleUpdateFolder,
         handleSelectConversation,
         handleUpdateConversation,
+        getDefaultSystemPrompt,
       }}
     >
       <Head>
@@ -403,6 +419,8 @@ const Home = ({
   );
 };
 export default Home;
+
+
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   const defaultModelId =

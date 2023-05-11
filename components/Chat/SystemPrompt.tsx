@@ -17,6 +17,9 @@ import { Prompt } from '@/types/prompt';
 import { PromptList } from './PromptList';
 import { VariableModal } from './VariableModal';
 
+
+
+
 interface Props {
   conversation: Conversation;
   prompts: Prompt[];
@@ -29,6 +32,7 @@ export const SystemPrompt: FC<Props> = ({
   onChangePrompt,
 }) => {
   const { t } = useTranslation('chat');
+  
 
   const [value, setValue] = useState<string>('');
   const [activePromptIndex, setActivePromptIndex] = useState(0);

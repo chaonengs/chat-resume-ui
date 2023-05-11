@@ -39,6 +39,7 @@ export const Chatbar = () => {
     handleCreateFolder,
     handleNewConversation,
     handleUpdateConversation,
+    getDefaultSystemPrompt,
   } = useContext(HomeContext);
 
   const {
@@ -120,7 +121,7 @@ export const Chatbar = () => {
           name: t('New Conversation'),
           messages: [],
           model: OpenAIModels[defaultModelId],
-          prompt: DEFAULT_SYSTEM_PROMPT,
+          prompt: getDefaultSystemPrompt(),
           temperature: DEFAULT_TEMPERATURE,
           folderId: null,
         },
@@ -162,7 +163,7 @@ export const Chatbar = () => {
             name: t('New Conversation'),
             messages: [],
             model: OpenAIModels[defaultModelId],
-            prompt: DEFAULT_SYSTEM_PROMPT,
+            prompt: getDefaultSystemPrompt(),
             temperature: DEFAULT_TEMPERATURE,
             folderId: null,
           },

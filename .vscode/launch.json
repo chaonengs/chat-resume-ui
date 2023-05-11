@@ -10,7 +10,12 @@
             "request": "launch",
             "command": "npm run dev"
           },
-
+          {
+            "name": "Vercel",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "vercel dev"
+          },
         {
             "type": "msedge",
             "request": "launch",
