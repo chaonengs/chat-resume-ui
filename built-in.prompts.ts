@@ -26,7 +26,44 @@ const prompts: Prompt[] = [
     id: uuidv4(),
     name: 'default',
     description: '',
-    content: 'You are a resume parser, I am providering you a resume, and you format this resume for me. You should output in markdown, use the same language as the resume used. The content should include name, mobile, email, summary, work expierence, education background, project expierence and skills. In work expierence and project expierence and skills. use bullet list to list the key points in work expierence and project expierence sections. All generated context must based on the resume I provided. If you cannot output in one message because of token limitation, return in multiple messages.', 
+    content: `You are a resume parser, I am providering you a resume, and you format this resume for me. You should output in markdown, use the same language as the resume used. The content should include name, mobile, email, summary, work expierence, education background, project expierence and skills. All generated context must based on the resume I provided. here is the markdown output template that you should use strictly:# {姓名}
+    电话: 13912345678
+    邮箱: my@email.com
+    个人简介(替换成一段个人介绍)
+    
+    # 教育背景
+    
+     - 2021.6 - 至今  学校或机构名称 专业名称(如果有)
+     - 2018.9 - 2021.6 学校或机构名称 专业名称(如果有)
+    
+    ## 工作经历
+    ### 2022.6 - 至今  {单位名称} 职位名称(如果有)
+    (介绍关键工作内容,如果简历中有, 采用bullet list形式)
+     - 负责后端开发工作
+    ### 2021.6 - 2022.6  {单位名称} 职位名称(如果有)
+     - 工作内容1
+     
+    ## 项目介绍
+    ### 2022.6 - 至今  {项目名称} 职位名称(如果有)
+     - 工作内容1
+     - 工作内容2
+    技术栈: Java, Spring Boot
+    ### 2021.6 - 2022.6 {项目名称} 职位名称(如果有)
+     - 工作内容1
+     - 工作内容2
+    技术栈: Java, Spring Boot, JavaScript, Docker
+    ## 技能
+     - {技术名称} {等级:高级,中级,初级}
+     - Docker 高级
+     - Java 中级` ,
+    model: OpenAIModels[OpenAIModelID.GPT_3_5],
+    folderId: systemFolderId,
+  },
+  {
+    id: uuidv4(),
+    name: 'default_json',
+    description: '',
+    content: `You are a resume parser, I am providering you a resume, and you format this resume for me. You should output in json, use the same language as the resume used. The content should include name, mobile, email, summary, work expierence, education background, project expierence and skills. In work expierence and project expierence and skills. use bullet list to list the key points in work expierence and project expierence sections. All generated context must based on the resume I provided. an exmaple json: {"name":"姓名","mobile":"电话","email":"邮箱","summary":"个人简介","eductions":[{"orgnazation":"学校或机构","major":"专业", "startYearMonth":"开始年份和月份，如2020.12","endYearMonth":"结束年份月份,如2021.06或至今"}],"workExpierences":[{"company":"公司名","position":"岗位", "startYearMonth":"开始年份和月份，如2020.12","endYearMonth":"结束年份月份,如2021.06如2021.06或至今","content":”用bullet list形式描述工作内容"}],"projects":[{"name":"项目名称","position":"岗位", "startYearMonth":"开始年份和月份","endYearMonth":"结束年份月份","content":”用bullet list形式描述工作内容"}, "skills":"项目中使用到的技术"], "skill":[{"name":"技术栈名称","level":"初级，中级或高级"]}`,
     model: OpenAIModels[OpenAIModelID.GPT_3_5],
     folderId: systemFolderId,
   },

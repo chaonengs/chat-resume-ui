@@ -11,7 +11,7 @@ import {
 import toast from 'react-hot-toast';
 import * as pdfjs from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-import { firstLine, generateResumeZh, generateResume} from '@/prompts/built-in';
+import { firstLine, generateResumeZh, generateResume } from '@/prompts/built-in';
 import { useTranslation } from 'next-i18next';
 
 import { getEndpoint } from '@/utils/app/api';
@@ -24,7 +24,7 @@ import { throttle } from '@/utils/data/throttle';
 
 import { ChatBody, Conversation, Message } from '@/types/chat';
 import { Plugin } from '@/types/plugin';
-import {useDropzone} from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 
 import HomeContext from '@/pages/api/home/home.context';
 
@@ -45,7 +45,7 @@ interface Props {
 
 /* eslint-disable */
 // @ts-ignore
-const pdfToText = (file) => {  
+const pdfToText = (file) => {
 
   pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -77,7 +77,7 @@ const pdfToText = (file) => {
     regex = /\s([^\u4E00-\u9FFFa-zA-Z0-9])/g;
     str = str.replace(regex, subst);
     regex = /[\u4E00-\u9FFF]/g;
-    if(str.match(regex)){
+    if (str.match(regex)) {
       regex = /([A-Za-z0-9])\s/g;
       str = str.replace(regex, subst);
       regex = /\s([A-Za-z0-9])/g;
@@ -87,20 +87,20 @@ const pdfToText = (file) => {
     return str;
   }
 
-  const toCDB = (str: String) => { 
-    var tmp = ""; 
-    for(var i = 0; i < str.length; i++) { 
-        if (str.charCodeAt(i) == 12288) {
-           tmp += String.fromCharCode(str.charCodeAt(i)-12256);
-           continue;
-        } else if(str.charCodeAt(i) > 65280 && str.charCodeAt(i) < 65375) { 
-           tmp += String.fromCharCode(str.charCodeAt(i)-65248); 
-        } else { 
-           tmp += String.fromCharCode(str.charCodeAt(i)); 
-        } 
-    } 
-    return tmp; 
-}
+  const toCDB = (str: String) => {
+    var tmp = "";
+    for (var i = 0; i < str.length; i++) {
+      if (str.charCodeAt(i) == 12288) {
+        tmp += String.fromCharCode(str.charCodeAt(i) - 12256);
+        continue;
+      } else if (str.charCodeAt(i) > 65280 && str.charCodeAt(i) < 65375) {
+        tmp += String.fromCharCode(str.charCodeAt(i) - 65248);
+      } else {
+        tmp += String.fromCharCode(str.charCodeAt(i));
+      }
+    }
+    return tmp;
+  }
 
   return new Promise(function (resolve, reject) {
     reader.onloadend = async () => {
@@ -108,7 +108,7 @@ const pdfToText = (file) => {
       const arrayBuffer = reader.result;
       // @ts-ignore
       const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
-      
+
       // Loop through all pages
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
@@ -130,7 +130,7 @@ const pdfToText = (file) => {
 
 export const Chat = memo(({ stopConversationRef }: Props) => {
   const { t } = useTranslation('chat');
-  
+
   const {
     state: {
       selectedConversation,
@@ -149,8 +149,8 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     dispatch: homeDispatch,
   } = useContext(HomeContext);
 
-  const [resumeFileName, setResumeFileName] = useState<string|null>(null);
-  const [resumeFileText, setResumeFileText] = useState<string|null>(null);
+  const [resumeFileName, setResumeFileName] = useState<string | null>(null);
+  const [resumeFileText, setResumeFileText] = useState<string | null>(null);
   const [currentMessage, setCurrentMessage] = useState<Message>();
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
   const [showSettings, setShowSettings] = useState<boolean>(false);
@@ -364,8 +364,8 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       value: text,
     });
     handleUpdateConversation(selectedConversation, {
-        key: 'prompt',
-        value: DEFAULT_SYSTEM_PROMPT
+      key: 'prompt',
+      value: DEFAULT_SYSTEM_PROMPT
     });
     const message: Message = {
       role: 'user',
@@ -373,20 +373,20 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     };
     setCurrentMessage(message);
     handleSend(message, 0, null);
-    }, [
-      apiKey,
-      conversations,
-      pluginKeys,
-      selectedConversation,
-      stopConversationRef,
-      prompts,
-      handleSend,
-      handleUpdateConversation,
-      getDefaultSystemPrompt
-    ],
+  }, [
+    apiKey,
+    conversations,
+    pluginKeys,
+    selectedConversation,
+    stopConversationRef,
+    prompts,
+    handleSend,
+    handleUpdateConversation,
+    getDefaultSystemPrompt
+  ],
   );
 
-  const {acceptedFiles, getRootProps, getInputProps} = useDropzone({onDrop, maxFiles:1});
+  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({ onDrop, maxFiles: 1 });
 
   const scrollToBottom = useCallback(() => {
     if (autoScrollEnabled) {
@@ -571,7 +571,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                     </div>
                   )}
 
-                  {!selectedConversation.resumeFileName && (<div {...getRootProps({className: 'dropzone flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600'})}>
+                  {!selectedConversation.resumeFileName && (<div {...getRootProps({ className: 'dropzone flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600' })}>
                     <input {...getInputProps()} />
                     <p>Drag and drop your resume pdf, or click to select files</p>
                   </div>)}
@@ -579,7 +579,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                     <p>You are chatting with {selectedConversation.resumeFileName}</p>
                   </div>)}
                 </div>
-                
+
               </>
             ) : (
               <>
@@ -633,21 +633,24 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
             )}
           </div>
 
-          <ChatInput
-            stopConversationRef={stopConversationRef}
-            textareaRef={textareaRef}
-            onSend={(message, plugin) => {
-              setCurrentMessage(message);
-              handleSend(message, 0, plugin);
-            }}
-            onScrollDownClick={handleScrollDown}
-            onRegenerate={() => {
-              if (currentMessage) {
-                handleSend(currentMessage, 2, null);
-              }
-            }}
-            showScrollDownButton={showScrollDownButton}
-          />
+
+          {selectedConversation?.messages && selectedConversation?.messages.length > 0 &&
+            <ChatInput
+              stopConversationRef={stopConversationRef}
+              textareaRef={textareaRef}
+              onSend={(message, plugin) => {
+                setCurrentMessage(message);
+                handleSend(message, 0, plugin);
+              }}
+              onScrollDownClick={handleScrollDown}
+              onRegenerate={() => {
+                if (currentMessage) {
+                  handleSend(currentMessage, 2, null);
+                }
+              }}
+              showScrollDownButton={showScrollDownButton}
+            />
+          }
         </>
       )}
     </div>
