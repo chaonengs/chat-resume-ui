@@ -23,18 +23,19 @@ export class OpenAIError extends Error {
   }
 }
 
-export const OpenAIStream = async (
+export const OpenAIChatComletion = (
   model: OpenAIModel,
   systemPrompt: string,
   temperature : number,
   key: string,
   messages: Message[],
-) => {
+  stream: boolean = true,
+)  => {
   let url = `${OPENAI_API_HOST}/v1/chat/completions`;
   if (OPENAI_API_TYPE === 'azure') {
     url = `${OPENAI_API_HOST}/openai/deployments/${AZURE_DEPLOYMENT_ID}/chat/completions?api-version=${OPENAI_API_VERSION}`;
   }
-  const res = await fetch(url, {
+  return fetch(url, {
     headers: {
       'Content-Type': 'application/json',
       ...(OPENAI_API_TYPE === 'openai' && {
@@ -59,9 +60,22 @@ export const OpenAIStream = async (
       ],
       // max_tokens: 1024,
       temperature: temperature,
-      stream: true,
+      stream: stream,
     }),
   });
+}
+
+
+
+export const OpenAIStream = async (
+  model: OpenAIModel,
+  systemPrompt: string,
+  temperature : number,
+  key: string,
+  messages: Message[],
+  stream: boolean = true,
+) => {
+  const res = await OpenAIChatComletion(model, systemPrompt,temperature,key, messages, stream);
 
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
@@ -84,7 +98,11 @@ export const OpenAIStream = async (
     }
   }
 
-  const stream = new ReadableStream({
+  if (!stream){
+    return  (await res.json()).choices[0];
+  }
+
+  const result = new ReadableStream({
     async start(controller) {
       const onParse = (event: ParsedEvent | ReconnectInterval) => {
         if (event.type === 'event') {
@@ -113,5 +131,5 @@ export const OpenAIStream = async (
     },
   });
 
-  return stream;
+  return result;
 };
